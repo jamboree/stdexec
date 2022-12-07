@@ -111,7 +111,7 @@ namespace exec {
           using __result_t =
             __minvoke<
               __if_c<
-                __valid<__new_sender_t, _Sender, _Receiver>,
+                __valid_<__new_sender_t, _Sender, _Receiver>,
                 __q<__new_sender_t>,
                 __q<__diagnostic_t>>,
               _Sender,
@@ -120,7 +120,7 @@ namespace exec {
         template <class _Sender, class _Receiver>
           auto transform_sender(_Sender&& __sndr, __ignore, _Receiver& __rcvr)
             -> __result_t<_Sender, _Receiver> {
-            if constexpr (__valid<__new_sender_t, _Sender, _Receiver>) {
+            if constexpr (__valid_<__new_sender_t, _Sender, _Receiver>) {
               auto __sched = get_scheduler(stdexec::get_env(__rcvr));
               return transform_sender_((_Sender&&) __sndr, __sched);
             } else {
@@ -207,7 +207,7 @@ namespace exec {
           using __result_t =
             __minvoke<
               __if_c<
-                __valid<__new_sender_t, _Sender, _Receiver>,
+                __valid_<__new_sender_t, _Sender, _Receiver>,
                 __q<__new_sender_t>,
                 __q<__diagnostic_t>>,
               _Sender,
@@ -216,7 +216,7 @@ namespace exec {
         template <class _Sender, class _Receiver>
           auto transform_sender(_Sender&& __sndr, __ignore, _Receiver& __rcvr)
             -> __result_t<_Sender, _Receiver> {
-            if constexpr (__valid<__new_sender_t, _Sender, _Receiver>) {
+            if constexpr (__valid_<__new_sender_t, _Sender, _Receiver>) {
               auto __sched = get_scheduler(stdexec::get_env(__rcvr));
               return transform_sender_((_Sender&&) __sndr, __sched);
             } else {

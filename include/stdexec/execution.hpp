@@ -512,7 +512,7 @@ namespace stdexec {
   namespace __get_completion_signatures {
     template <class _Sender, class _Env>
       concept __with_tag_invoke =
-        __valid<tag_invoke_result_t, get_completion_signatures_t, _Sender, _Env>;
+        __valid_<tag_invoke_result_t, get_completion_signatures_t, _Sender, _Env>;
 
     template <class _Sender, class...>
       using __member_alias_t =
@@ -520,7 +520,7 @@ namespace stdexec {
 
     template <class _Sender>
       concept __with_member_alias =
-        __valid<__member_alias_t, _Sender>;
+        __valid_<__member_alias_t, _Sender>;
 
     struct get_completion_signatures_t {
       template <class _Sender, class _Env>
@@ -576,7 +576,7 @@ namespace stdexec {
   // NOT TO SPEC (YET)
   template <class _Sender, class _Env>
     concept __sender =
-      __valid<__completion_signatures_of_t, _Sender, _Env> &&
+      __valid_<__completion_signatures_of_t, _Sender, _Env> &&
       __valid_completion_signatures<__completion_signatures_of_t<_Sender, _Env>, _Env> &&
       move_constructible<remove_cvref_t<_Sender>> &&
       constructible_from<remove_cvref_t<_Sender>, _Sender>;
@@ -690,12 +690,12 @@ namespace stdexec {
         __mcount<_Tag>>;
 
   template <class _Tag, class _Sender, class _Env = no_env>
-      requires __valid<__count_of, _Tag, _Sender, _Env>
+      requires __valid_<__count_of, _Tag, _Sender, _Env>
     inline constexpr bool __sends =
       (__v<__count_of<_Tag, _Sender, _Env>> != 0);
 
   template <class _Sender, class _Env = no_env>
-      requires __valid<__count_of, set_stopped_t, _Sender, _Env>
+      requires __valid_<__count_of, set_stopped_t, _Sender, _Env>
     inline constexpr bool sends_stopped =
       __sends<set_stopped_t, _Sender, _Env>;
 
@@ -710,12 +710,12 @@ namespace stdexec {
   template <class _Sender, class _Env = no_env>
     concept __single_typed_sender =
       sender<_Sender, _Env> &&
-      __valid<__single_sender_value_t, _Sender, _Env>;
+      __valid_<__single_sender_value_t, _Sender, _Env>;
 
   template <class _Sender, class _Env = no_env>
     concept __single_value_variant_sender =
       sender<_Sender, _Env> &&
-      __valid<__single_value_variant_sender_t, _Sender, _Env>;
+      __valid_<__single_value_variant_sender_t, _Sender, _Env>;
 
   template <class... Errs>
     using __nofail = __bool<sizeof...(Errs) == 0>;
@@ -1176,16 +1176,16 @@ namespace stdexec {
           }
 
           template <class _Awaitable>
-          _Awaitable&& await_transform(_Awaitable&& __await) noexcept {
-            return (_Awaitable&&) __await;
+          _Awaitable&& await_transform(_Awaitable&& __await_) noexcept {
+            return (_Awaitable&&) __await_;
           }
 
           template <class _Awaitable>
             requires tag_invocable<as_awaitable_t, _Awaitable, __t&>
-          auto await_transform(_Awaitable&& __await)
+          auto await_transform(_Awaitable&& __await_)
               noexcept(nothrow_tag_invocable<as_awaitable_t, _Awaitable, __t&>)
               -> tag_invoke_result_t<as_awaitable_t, _Awaitable, __t&> {
-            return tag_invoke(as_awaitable, (_Awaitable&&) __await, *this);
+            return tag_invoke(as_awaitable, (_Awaitable&&) __await_, *this);
           }
 
           // Pass through the get_env receiver query
@@ -1207,7 +1207,7 @@ namespace stdexec {
     struct __connect_awaitable_t {
      private:
       template <class _Awaitable, class _Receiver>
-      static __operation_t<_Receiver> __co_impl(_Awaitable __await, _Receiver __rcvr) {
+      static __operation_t<_Receiver> __co_impl(_Awaitable __await_, _Receiver __rcvr) {
         using __result_t = __await_result_t<_Awaitable, __promise_t<_Receiver>>;
         std::exception_ptr __eptr;
         try {
@@ -1225,9 +1225,9 @@ namespace stdexec {
             };
           };
           if constexpr (std::is_void_v<__result_t>)
-            co_yield (co_await (_Awaitable &&) __await, __fun());
+            co_yield (co_await (_Awaitable &&) __await_, __fun());
           else
-            co_yield __fun(co_await (_Awaitable &&) __await);
+            co_yield __fun(co_await (_Awaitable &&) __await_);
         } catch (...) {
           __eptr = std::current_exception();
         }
@@ -1248,8 +1248,8 @@ namespace stdexec {
      public:
       template <class _Receiver, __awaitable<__promise_t<_Receiver>> _Awaitable>
           requires receiver_of<_Receiver, __completions_t<_Receiver, _Awaitable>>
-        __operation_t<_Receiver> operator()(_Awaitable&& __await, _Receiver __rcvr) const {
-          return __co_impl((_Awaitable&&) __await, (_Receiver&&) __rcvr);
+        __operation_t<_Receiver> operator()(_Awaitable&& __await_, _Receiver __rcvr) const {
+          return __co_impl((_Awaitable&&) __await_, (_Receiver&&) __rcvr);
         }
     };
   } // namespace __connect_awaitable_
@@ -4817,7 +4817,7 @@ namespace stdexec {
     template <class _Sender, class _Env>
       concept __max1_sender =
         sender<_Sender, _Env> &&
-        __valid<__value_types_of_t, _Sender, _Env, __mconst<int>, __single_or<void>>;
+        __valid_<__value_types_of_t, _Sender, _Env, __mconst<int>, __single_or<void>>;
 
     template <class _Env, class _Sender>
       using __single_values_of_t =

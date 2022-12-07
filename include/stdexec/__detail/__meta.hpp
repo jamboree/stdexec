@@ -141,14 +141,14 @@ namespace stdexec {
     using __mbind_back = __mbind_back_q<_Fn::template __f, _Back...>;
 
   template <template <class...> class _T, class... _Args>
-    concept __valid =
+    concept __valid_ =
       requires {
         typename __meval<_T, _Args...>;
       };
 
   template <class _Fn, class... _Args>
     concept __minvocable =
-      __valid<_Fn::template __f, _Args...>;
+      __valid_<_Fn::template __f, _Args...>;
 
   template <class _Fn, class... _Args>
     struct __force_minvoke_ {
@@ -635,10 +635,10 @@ namespace stdexec {
 
   template <class _Ty>
     using __mrequires =
-      __bool<__valid<__mtypeof, _Ty>>;
+      __bool<__valid_<__mtypeof, _Ty>>;
   template <class _Ty>
     concept __mrequires_v =
-      __valid<__mtypeof, _Ty>;
+      __valid_<__mtypeof, _Ty>;
 
   template <class _Ty>
     inline constexpr bool __mnoexcept__ = true;
